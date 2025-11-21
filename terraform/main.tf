@@ -148,11 +148,9 @@ module "iam" {
   ]
 
   artifacts_bucket_arn   = aws_s3_bucket.artifacts_temp.arn
-  codebuild_project_arn  = module.codebuild.project_arn
 
   tags = local.common_tags
 
-  depends_on = [module.codebuild]
 }
 
 # ========================================
