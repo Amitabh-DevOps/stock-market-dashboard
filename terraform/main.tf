@@ -154,6 +154,31 @@ module "iam" {
 
 }
 
+# Ensure ECS task execution role can read the Secrets Manager secrets.
+# This policy is added here to be explicit and to cover any timing/order
+# issues where the role might not have had the secret access at deploy time.
+resource "aws_iam_role_policy" "ecs_allow_secrets_read" {
+  name = "${local.name_prefix}-ecs-allow-secrets-read"
+  role = module.iam.ecs_task_execution_role_name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Resource = [
+          aws_secretsmanager_secret.api_key.arn,
+          aws_secretsmanager_secret.github_token.arn
+        ]
+      }
+    ]
+  })
+}
+
 # ========================================
 # ECS Module
 # ========================================
